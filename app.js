@@ -4,29 +4,42 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 function App() {
     const [profiles, setProfiles] = useState([]);
+    const [profilesCache, setProfilesCache] = useState({});
     const [meetings, setMeetings] = useState([]);
+    const [meetingsCache, setMeetingsCache] = useState({});
 
     const fetchProfiles = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/profiles`);
-            setProfiles(response.data);
-        } catch (error) {
-            console.error("Error fetching profiles:", error);
+        if (!profilesCache['data']) {
+            try {
+                const response = await axios.get(`${API_URL}/profiles`);
+                setProfiles(response.data);
+                setProfilesCache({ data: response.data });
+            } catch (error) {
+                console.error("Error fetching profiles:", error);
+            }
+        } else {
+            setProfiles(profilesCache['data']);
         }
     };
 
     const fetchMeetings = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/meetings`);
-            setMeetings(response.data);
-        } catch (error) {
-            console.error("Error fetching meetings:", error);
+        if (!meetingsCache['data']) {
+            try {
+                const response = await axios.get(`${API_URL}/meetings`);
+                setMeetings(response.data);
+                setMeetingsCache({ data: response.data });
+            } catch (error) {
+                console.error("Error fetching meetings:", error);
+            }
+        } else {
+            setMeetings(meetingsCache['data']);
         }
     };
 
     const createProfile = async (profileData) => {
         try {
             await axios.post(`${API_URL}/profiles`, profileData);
+            setProfilesCache({}); // Invalidate cache
             fetchProfiles();
         } catch (error) {
             console.error("Error creating a profile:", error);
@@ -35,7 +48,8 @@ function App() {
 
     const updateProfile = async (id, updatedData) => {
         try {
-            await axios.put(`${API_URL}/profiles/${id}`, updatedDataSet);
+            await axios.put(`${API_URL}/profiles/${id}`, updatedData);
+            setProfilesCache({}); // Invalidate cache
             fetchProfiles();
         } catch (error) {
             console.error("Error updating the profile:", error);
@@ -45,6 +59,7 @@ function App() {
     const deleteProfile = async (id) => {
         try {
             await axios.delete(`${API_URL}/profiles/${id}`);
+            setProfilesCache({}); // Invalidate cache
             fetchProfiles();
         } catch (error) {
             console.error("Error deleting the profile:", error);
@@ -54,6 +69,7 @@ function App() {
     const createMeeting = async (meetingData) => {
         try {
             await axios.post(`${API_URL}/meetings`, meetingData);
+            setMeetingsCache({}); // Invalidate cache
             fetchMeetings();
         } catch (error) {
             console.error("Error creating a meeting:", error);
@@ -63,6 +79,7 @@ function App() {
     const updateMeeting = async (id, updatedData) => {
         try {
             await axios.put(`${API_URL}/meetings/${id}`, updatedData);
+            setMeetingsCache({}); // Invalidate cache
             fetchMeetings();
         } catch (error) {
             console.error("Error updating the meeting:", error);
@@ -72,6 +89,7 @@ function App() {
     const deleteMeeting = async (id) => {
         try {
             await axios.delete(`${API_URL}/meetings/${id}`);
+            setMeetingsCache({}); // Invalidate cache
             fetchMeetings();
         } catch (error) {
             console.error("Error deleting the meeting:", error);
