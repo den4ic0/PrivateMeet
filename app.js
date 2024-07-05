@@ -4,52 +4,44 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 function App() {
     const [profiles, setProfiles] = useState([]);
-    const [profilesCache, setProfilesCache] = useState({});
     const [meetings, setMeetings] = useState([]);
-    const [meetingsCache, setMeetingsCache] = useState({});
 
-    const fetchProfiles = async () => {
-        if (!profilesCache['data']) {
-            try {
-                const response = await axios.get(`${API_URL}/profiles`);
-                setProfiles(response.data);
-                setProfilesCache({ data: response.data });
-            } catch (error) {
-                console.error("Error fetching profiles:", error);
-            }
+    const fetchData = async (endpoint, stateSetter, cacheName) => {
+        const cacheData = sessionStorage.getItem(cacheName);
+        if (cacheData) {
+            stateSetter(JSON.parse(cacheData));
         } else {
-            setProfiles(profilesCache['data']);
+            try {
+                const response = await axios.get(`${API_URL}/${endpoint}`);
+                stateSetter(response.data);
+                sessionStorage.setItem(cacheName, JSON.stringify(response.data)); // Cache the data
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+            }
         }
     };
 
-    const fetchMeetings = async () => {
-        if (!meetingsCache['data']) {
-            try {
-                const response = await axios.get(`${API_URL}/meetings`);
-                setMeetings(response.data);
-                setMeetingsCache({ data: response.data });
-            } catch (error) {
-                console.error("Error fetching meetings:", error);
-            }
-        } else {
-            setMeetings(meetingsCache['data']);
-        }
+    const invalidateCache = (cacheName) => {
+        sessionStorage.removeItem(cacheName);
     };
+
+    const fetchProfiles = () => fetchData('profiles', setProfiles, 'profilesCache');
+    const fetchMeetings = () => fetchData('meetings', setMeetings, 'meetingsCache');
 
     const createProfile = async (profileData) => {
         try {
             await axios.post(`${API_URL}/profiles`, profileData);
-            setProfilesCache({}); // Invalidate cache
+            invalidateCache('profilesCache'); // Invalidate cache
             fetchProfiles();
         } catch (error) {
-            console.error("Error creating a profile:", error);
+        console.error("Error creating a profile:", error);
         }
     };
 
     const updateProfile = async (id, updatedData) => {
         try {
             await axios.put(`${API_URL}/profiles/${id}`, updatedData);
-            setProfilesCache({}); // Invalidate cache
+            invalidateCache('profilesCache'); // Invalidate cache
             fetchProfiles();
         } catch (error) {
             console.error("Error updating the profile:", error);
@@ -58,8 +50,8 @@ function App() {
 
     const deleteProfile = async (id) => {
         try {
-            await axios.delete(`${API_URL}/profiles/${id}`);
-            setProfilesCache({}); // Invalidate cache
+            await axios.delete(`${API_SFRA_URL}/profiles/${id}`);
+            invalidateCache('profilesCache'); // Invalidate cache
             fetchProfiles();
         } catch (error) {
             console.error("Error deleting the profile:", error);
@@ -69,7 +61,7 @@ function App() {
     const createMeeting = async (meetingData) => {
         try {
             await axios.post(`${API_URL}/meetings`, meetingData);
-            setMeetingsCache({}); // Invalidate cache
+            invalidateCache('meetingsCache'); // Invalidate cache
             fetchMeetings();
         } catch (error) {
             console.error("Error creating a meeting:", error);
@@ -79,7 +71,7 @@ function App() {
     const updateMeeting = async (id, updatedData) => {
         try {
             await axios.put(`${API_URL}/meetings/${id}`, updatedData);
-            setMeetingsCache({}); // Invalidate cache
+            invalidateCache('meetingsCache'); // Invalidate cache
             fetchMeetings();
         } catch (error) {
             console.error("Error updating the meeting:", error);
@@ -89,7 +81,7 @@ function App() {
     const deleteMeeting = async (id) => {
         try {
             await axios.delete(`${API_URL}/meetings/${id}`);
-            setMeetingsCache({}); // Invalidate cache
+            invalidateCache('meetingsCache'); // Invalidate cache
             fetchMeetings();
         } catch (error) {
             console.error("Error deleting the meeting:", error);
