@@ -4,12 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Webpage Title</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div id="uniqueID"></div>
+    <!-- Main Page Content -->
+    <div id="mainPage">
+        <h1>Welcome to PrivateMeet!</h1>
+        <p>Explore our project.</p>
+        <button onclick="showAuthorPage()">Meet the Author</button>
+    </div>
+    <!-- Author Page Content -->
+    <div id="authorPage" class="hidden">
+        <h1>Author Page</h1>
+        <p>About the author...</p>
+        <button onclick="showMainPage()">Back to Home</button>
+    </div>
+
     <script>
-        const envVar = "ENVIRONMENT_VARIABLE";
-        console.log(envVar);
+        function showAuthorPage() {
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('authorPage').classList.remove('hidden');
+        }
+
+        function showMainPage() {
+            document.getElementById('authorPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
