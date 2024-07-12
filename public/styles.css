@@ -1,0 +1,134 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f4;
+  color: #333;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+  overflow: hidden;
+}
+
+header {
+  background: #333;
+  color: #fff;
+  padding-top: 30px;
+  min-height: 70px;
+  border-bottom: #0779e4 3px solid;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+  text-align: center;
+}
+
+.profile-form {
+  background: #fff;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.profile-form input[type='text'],
+.profile-form input[type='email'] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.profile-form input[type='submit'] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  background: #333;
+  color: #fff;
+  cursor: pointer;
+}
+
+.profile-form input[type='submit']:hover {
+  background: #0779e4;
+}
+
+.profile-view {
+  background: #fff;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.profile-view h2,
+.profile-view p {
+  margin: 0;
+  padding: 10px 0;
+}
+
+.meeting-form {
+  background: #fff;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.meeting-form label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.meeting-form input[type='text'],
+.meeting-form input[type='datetime-local'] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.meeting-form input[type='submit'] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  background: #333;
+  color: #fff;
+  cursor: pointer;
+}
+
+.meeting-form input[type='submit']:hover {
+  background: #0779e4;
+}
+
+.meeting-list {
+  background: #fff;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.meeting-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.meeting-list ul li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+@media screen and (max-width: 768px) {
+  .container,
+  header h1,
+  .profile-form,
+  .profile-view,
+  .meeting-form,
+  .meeting-list {
+    width: 100%;
+    padding: 0 20px;
+  }
+}
