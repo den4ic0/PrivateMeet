@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const Header = () => {
-  const [paths, setPaths] = useState({
+const HeaderComponent = () => {
+  const [navigationPaths, setNavigationPaths] = useState({
     home: '/',
     meetings: '/meetings',
     about: '/about',
     contact: '/contact',
   });
-  const [error, setError] = useState('');
+  const [navigationError, setNavigationError] = useState('');
 
   useEffect(() => {
     try {
-      setPaths({
-        ...paths,
+      setNavigationPaths({
+        ...navigationPaths,
       });
-    } catch (e) {
-      setError('Failed to load navigation paths');
-      console.error(e);
+    } catch (error) {
+      setNavigationError('Failed to load navigation paths');
+      console.error(error);
     }
   }, []);
 
-  if (error) {
+  if (navigationError) {
     return <header>Error loading navigation</header>;
   }
 
@@ -29,9 +29,9 @@ const Header = () => {
     <header>
       <nav>
         <ul>
-          {Object.entries(paths).map(([key, value]) => (
-            <li key={key}>
-              <Link to={value}>{key.charAt(0).toUpperCase() + key.slice(1)}</Link>
+          {Object.entries(navigationPaths).map(([pathKey, pathValue]) => (
+            <li key={pathKey}>
+              <Link to={pathValue}>{pathKey.charAt(0).toUpperCase() + pathKey.slice(1)}</Link>
             </li>
           ))}
         </ul>
@@ -40,4 +40,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default HeaderComponent;
