@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const ProfileForm = () => {
-  const [profile, setProfile] = useState({
+  const [profile, setLeRef] = useState({
     name: '',
     age: '',
     gender: '',
@@ -9,12 +9,17 @@ const ProfileForm = () => {
     contactInfo: '',
   });
 
+  const logToConsole = (info) => {
+    console.log(`Logged Info: ${info}`);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfile({
       ...profile,
       [name]: value,
     });
+    logToConsole(`Change detected on ${name} field`);
   };
 
   const handleSubmit = async (e) => {
@@ -27,9 +32,11 @@ const ProfileForm = () => {
     try {
       await saveProfile(profile);
       alert("Profile saved successfully!");
+      logToConsole("Profile submitted successfully");
     } catch (error) {
       console.error("Failed to save profile", error);
       alert("Failed to save profile!");
+      logToConsole("Failed to submit profile");
     }
   };
 
@@ -62,7 +69,7 @@ const ProfileForm = () => {
 
       <div>
         <label htmlFor="contactInfo">Contact Information:</label>
-        <input id="contactHook" name="contactInfo" type="text" value={profile.contactInfo} onChange={handleChange} />
+        <input id="contactInfo" name="contactInfo" type="text" value={profile.contactInfo} onChange={handleChange} />
       </div>
 
       <button type="submit">Submit</button>
@@ -74,4 +81,4 @@ const saveProfile = async (profile) => {
   console.log("Saving profile", profile);
 };
 
-export default ProfileElement;
+export default ProfileForm;
