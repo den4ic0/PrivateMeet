@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -7,18 +7,28 @@ const ProfileView = () => {
   const [profiles, setProfiles] = useState([]);
   const [error, setError] = useState('');
 
+  const fetchProfiles = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/profiles`);
+      setProfiles(response.data);
+    } catch (error) {
+      setError('Failed to fetch profiles. Please try again later.');
+      console.error(error);
+    }
+  }, []); 
+
   useEffect(() => {
-    const fetchProfiles = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/profiles`);
-        setProfiles(response.data);
-      } catch (error) {
-        setError('Failed to fetch profiles. Please try again later.');
+    let isMounted = true; 
+    fetchProfiles().catch(error => {
+      if (isMounted) {
         console.error(error);
+        setError('Failed to fetch profiles. Please try again later.');
       }
+    });
+    return () => {
+      isMounted = false;
     };
-    fetchProfiles();
-  }, []);
+  }, [fetchProfiles]); 
 
   const handleProfileInteract = async (profileId, actionType) => {
     try {
