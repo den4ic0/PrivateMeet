@@ -8,20 +8,47 @@ const MeetingForm = ({ onSubmit, initialData = {} }) => {
     participants: initialData.participants || '',
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    if (errors[e.target.name]) {
+      setErrors({
+        ...errors,
+        [e.target.name]: '',
+      });
+    }
   };
 
   const validateForm = () => {
-    const { date, time, location, participants } = formData;
-    if (!date || !time || !location || !participants) {
-      alert('All fields are required');
-      return false;
+    let formIsValid = true;
+    let newErrors = {};
+
+    if (!formData.date) {
+      formIsValid = false;
+      newErrors.date = 'Date is required.';
     }
-    return true;
+
+    if (!formData.time) {
+      formIsValid = false;
+      newErrors.time = 'Time is required.';
+    }
+
+    if (!formData.location) {
+      formIsValid = false;
+      newErrors.location = 'Location is required.';
+    }
+
+    if (!formData.participants) {
+      formIsValid = false;
+      newErrors.participants = 'Participants are required.';
+    }
+
+    setErrors(newErrors);
+    return formIsValid;
   };
 
   const handleSubmit = (e) => {
@@ -41,6 +68,7 @@ const MeetingForm = ({ onSubmit, initialData = {} }) => {
           value={formData.date}
           onChange={handleChange}
         />
+        {errors.date && <div style={{ color: 'red' }}>{errors.date}</div>}
       </div>
       <div>
         <label>Time</label>
@@ -50,6 +78,7 @@ const MeetingForm = ({ onSubmit, initialData = {} }) => {
           value={formData.time}
           onChange={handleChange}
         />
+        {errors.time && <div style={{ color: 'red' }}>{errors.time}</div>}
       </div>
       <div>
         <label>Location</label>
@@ -59,6 +88,7 @@ const MeetingForm = ({ onSubmit, initialData = {} }) => {
           value={formData.location}
           onChange={handleChange}
         />
+        {errors.location && <div style={{ color: 'red' }}>{errors.location}</div>}
       </div>
       <div>
         <label>Participants</label>
@@ -68,6 +98,7 @@ const MeetingForm = ({ onSubmit, initialData = {} }) => {
           value={formData.participants}
           onChange={handleChange}
         />
+        {errors.participants && <div style={{ color: 'red' }}>{errors.participants}</div>}
       </div>
       <button type="submit">Submit</button>
     </form>
