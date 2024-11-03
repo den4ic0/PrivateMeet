@@ -4,30 +4,31 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   .catch(err => console.error("MongoDB connection error:", err));
 
 const userSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String, required: true },
   age: Number,
   gender: String,
   bio: String,
   contact: {
-    email: String,
+    email: { type: String, required: true },
     phone: String
-  }
-});
+  },
+  isDeleted: { type: Boolean, default: false } // Soft delete
+}, { timestamps: true }); // Auto-manage createdAt and updatedAt timestamps
 
 const meetingSchema = new mongoose.Schema({
-  date: Date,
-  time: String,
+  date: { type: Date, required: true },
+  time: { type: String, required: true },
   location: String,
   participants: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
-});
+  }],
+  isDeleted: { type: Boolean, default: false } // Soft delete
+}, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
 const Meeting = mongoose.model('Meeting', meetingSchema);
 
-// Simple in-memory cache
 const cache = {
   users: new Map(),
   meetings: new Map(),
@@ -38,11 +39,10 @@ async function createUser(userData) {
   try {
     await newUser.save();
     console.log('User created successfully:', newUser);
-    // Invalidate cache for users as new user is added
     cache.users.clear();
   } catch (error) {
     console.error('Error creating user:', error);
-    throw error; // Throw error to indicate failure in higher-level functions if necessary.
+    throw error;
   }
 }
 
@@ -51,41 +51,28 @@ async function createMeeting(meetingData) {
   try {
     await newMeeting.save();
     console.log('Meeting created successfully:', newMeeting);
-    // Invalidate cache for meetings as a new meeting is added
     cache.meetings.clear();
   } catch (error) {
     console.error('Error creating meeting:', error);
-    throw error; // Throw error to indicate failure in higher-level functions if necessary.
+    throw error;
   }
 }
 
 async function addUserToMeeting(userId, meetingId) {
   try {
-    // Check cache for user
-    let user = cache.users.get(userId);
-    if (!user) {
-      user = await User.findById(userId);
-      if (user) {
-        cache.users.set(userId, user); // Cache the user
-      }
-    }
+    let user = cache.users.get(userId) ?? await User.findOne({ _id: userId, isDeleted: false });
+    let meeting = cache.meetings.get(meetingId) ?? await Meeting.findOne({ _id: meetingId, isDeleted: false });
 
-    // Check cache for meeting
-    let meeting = cache.meetings.get(meetingId);
-    if (!meeting) {
-      meeting = await Meeting.findById(meetingId);
-      if (meeting) {
-        cache.meetings.set(meetingId, meeting); // Cache the meeting
-      }
-    }
+    if (user && !cache.users.get(userId)) cache.users.set(userId, user); 
+    if (meeting && !cache.meetings.get(meetingId)) cache.meetings.set(meetingId, meeting); 
 
-    if (!user) {
-      console.error('User not found');
-      throw new Error('User not found');
+    if (!user || user.isDeleted) {
+      console.error('User not found or deleted');
+      throw new Error('User not found or deleted');
     }
-    if (!meeting) {
-      console.error('Meeting not found');
-      throw new Error('Meeting not found');
+    if (!meeting || meeting.isDeleted) {
+      console.error('Meeting not found or deleted');
+      throw new Error('Meeting not found or deleted');
     }
 
     meeting.participants.push(userId);
@@ -97,10 +84,23 @@ async function addUserToMeeting(userId, meetingId) {
   }
 }
 
+async function searchUser(criteria) {
+  try {
+    return await User.find({
+      $or: [{ name: new RegExp(criteria, 'i') }, { 'contact.email': new RegExp(criteria, 'i') }],
+      isDeleted: false
+    });
+  } catch (error) {
+    console.error('Error searching user:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   User,
   Meeting,
   createUser,
   createMeeting,
-  addUserToMeeting
+  addUserToMeeting,
+  searchUser // Exposing the search functionality
 };
