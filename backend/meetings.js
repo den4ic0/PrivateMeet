@@ -1,62 +1,62 @@
 const express = require('express');
-const Meeting = require('./meetingModel');
+const MeetingModel = require('./meetingModel');
 require('dotenv').config();
 
-const router = express.Router();
+const meetingsRouter = express.Router();
 
-router.post('/meetings', async (req, res) => {
+meetingsRouter.post('/meetings', async (req, res) => {
     try {
-        const meeting = new Meeting(req.body);
-        await meeting.save();
-        res.status(201).send(meeting);
+        const newMeeting = new MeetingModel(req.body);
+        await newMeeting.save();
+        res.status(201).send(newMeeting);
     } catch (error) {
         res.status(400).send(error);
     }
 });
 
-router.get('/meetings', async (req, res) => {
+meetingsRouter.get('/meetings', async (req, res) => {
     try {
-        const meetings = await Meeting.find({});
-        res.send(meetings);
+        const allMeetings = await MeetingModel.find({});
+        res.send(allMeetings);
     } catch (error) {
         res.status(500).send(error);
     }
 });
 
-router.get('/meetings/:id', async (req, res) => {
+meetingsRouter.get('/meetings/:id', async (req, res) => {
     try {
-        const meeting = await Meeting.findById(req.params.id);
-        if (!meeting) {
+        const singleMeeting = await MeetingModel.findById(req.params.id);
+        if (!singleMeeting) {
             return res.status(404).send();
         }
-        res.send(meeting);
+        res.send(singleMeeting);
     } catch (error) {
         res.status(500).send(error);
     }
 });
 
-router.patch('/meetings/:id', async (req, res) => {
+meetingsRouter.patch('/meetings/:id', async (req, res) => {
     try {
-        const meeting = await Meeting.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-        if (!meeting) {
+        const updatedMeeting = await MeetingModel.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        if (!updatedMeeting) {
             return res.status(404).send();
         }
-        res.send(meeting);
+        res.send(updatedMeeting);
     } catch (error) {
         res.status(400).send(error);
     }
 });
 
-router.delete('/meetings/:id', async (req, res) => {
+meetingsRouter.delete('/meetings/:id', async (req, res) => {
     try {
-        const meeting = await Meeting.findByIdAndDelete(req.params.id);
-        if (!meeting) {
+        const deletedMeeting = await MeetingModel.findByIdAndDelete(req.params.id);
+        if (!deletedMeeting) {
             return res.status(404).send();
         }
-        res.send(meeting);
+        res.send(deletedMeeting);
     } catch (error) {
         res.status(500).send(error);
     }
 });
 
-module.exports = router;
+module.exports = meetingsRouter;
