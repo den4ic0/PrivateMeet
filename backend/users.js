@@ -1,15 +1,21 @@
 const express = require('express');
-const User = require('./User'); 
+const mongoose = require('mongoose');
+require('express-async-errors'); 
+const User = require('./User');
+
+const app = express();
+app.use(express.json()); 
 
 const router = express.Router();
 
+app.use(function(err, req, res, next) {
+    console.error(err.stack);
+    res.status(500).send({ message: 'Something broke!', error: err.message });
+});
+
 router.get('/users', async (req, res) => {
-    try {
-        const users = await User.find();
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    const users = await User.find();
+    res.json(users);
 });
 
 router.get('/users/:id', getUser, (req, res) => {
@@ -17,54 +23,43 @@ router.get('/users/:id', getUser, (req, res) => {
 });
 
 router.post('/users', async (req, res) => {
-    const user = new User({
-        name: req.body.name,
-        email: req.body.email
-    });
-
-    try {
-        const newUser = await user.save();
-        res.status(201).json(newUser);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+    const { name, email } = req.body;
+    if(!name || !email) {
+        return res.status(400).json({ message: 'Name and email are required' });
     }
+    const user = new User({ name, email });
+
+    const newUser = await user.save();
+    res.status(201).json(newUser);
 });
 
 router.patch('/users/:id', getUser, async (req, res) => {
-    if (req.body.name != null) {
-        res.user.name = req.body.name;
+    const { name, email } = req.body;
+    if(name != null) {
+        res.user.name = name;
+    }
+    if(email != null) {
+        res.user.email = email;
     }
 
-    if (req.body.email != null) {
-        res.user.email = req.body.email;
-    }
-
-    try {
-        const updatedUser = await res.user.save();
-        res.json(updatedUser);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
+    const updatedUser = await res.user.save();
+    res.json(updatedUser);
 });
 
 router.delete('/users/:id', getUser, async (req, res) => {
-    try {
-        await res.user.remove();
-        res.json({ message: 'Deleted User' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    await res.user.remove();
+    res.json({ message: 'Deleted User' });
 });
 
 async function getUser(req, res, next) {
     let user;
     try {
         user = await User.findById(req.params.id);
-        if (user == null) {
+        if (!user) {
             return res.status(404).json({ message: 'Cannot find user' });
         }
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        return next(error); 
     }
 
     res.user = user;
@@ -72,3 +67,6 @@ async function getUser(req, res, next) {
 }
 
 module.exports = router;
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
